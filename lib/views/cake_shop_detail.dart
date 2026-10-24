@@ -15,11 +15,17 @@ class CakeShopDetail extends StatelessWidget {
     }
   }
 
+  Future<void> _callShop(String phone) async {
+    Uri phoneUri = Uri(scheme: 'tel', path: phone);
+
+    if (!await launchUrl(phoneUri)) {
+      throw Exception('Could not call $phone');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final shop = cakeShop;
-    final shopLatitude = double.parse(shop.latitude ?? '0');
-    final shopLongitude = double.parse(shop.longitude ?? '0');
 
     return Scaffold(
       backgroundColor: Color(0xFFFFF7FF),
@@ -85,7 +91,9 @@ class CakeShopDetail extends StatelessWidget {
           SizedBox(height: 12),
           Center(
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                _callShop(shop.phone ?? '');
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
@@ -119,11 +127,15 @@ class CakeShopDetail extends StatelessWidget {
             title: Text(shop.facebook ?? ''),
           ),
           SizedBox(height: 30),
-          SizedBox(
-            height: 300,
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height * 0.4,
             child: FlutterMap(
               options: MapOptions(
-                initialCenter: LatLng(shopLatitude, shopLongitude),
+                initialCenter: LatLng(
+                  double.parse(shop.latitude!),
+                  double.parse(shop.longitude!),
+                ),
                 initialZoom: 15,
               ),
               children: [
@@ -134,11 +146,23 @@ class CakeShopDetail extends StatelessWidget {
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: LatLng(shopLatitude, shopLongitude),
-                      child: Icon(
-                        Icons.location_on,
-                        color: Colors.red,
-                        size: 40,
+                      point: LatLng(
+                        double.parse(shop.latitude!),
+                        double.parse(shop.longitude!),
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          _launchInBrowser(
+                            Uri.parse(
+                              'https://www.google.com/maps/@${shop.latitude},${shop.longitude},15.5z',
+                            ),
+                          );
+                        },
+                        child: Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                          size: 50,
+                        ),
                       ),
                     ),
                   ],
