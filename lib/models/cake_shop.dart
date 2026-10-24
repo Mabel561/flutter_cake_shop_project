@@ -26,5 +26,4 @@ class CakeShop {
     this.longitude,
     this.facebook,
   });
-
 }
